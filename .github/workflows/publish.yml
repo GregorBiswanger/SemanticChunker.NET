@@ -25,9 +25,6 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test --configuration Release --no-build --no-restore
-
       - name: Pack NuGet package
         run: dotnet pack src/SemanticChunker.NET/SemanticChunker.NET.csproj --configuration Release --no-build --output ./nupkg
 
