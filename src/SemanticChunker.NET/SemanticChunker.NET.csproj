@@ -18,7 +18,7 @@
     </PackageTags>
     <PackageIcon>Assets/PackageIcon.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/GregorBiswanger/SemanticFlow</RepositoryUrl>
+    <RepositoryUrl>https://github.com/GregorBiswanger/SemanticChunker.NET</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
