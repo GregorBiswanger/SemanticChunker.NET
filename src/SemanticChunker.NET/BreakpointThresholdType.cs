@@ -1,4 +1,4 @@
-﻿namespace SemanticChunker.NET;
+﻿namespace SemanticChunkerNET;
 
 /// <summary>
 /// Controls how the breakpoint threshold is calculated.

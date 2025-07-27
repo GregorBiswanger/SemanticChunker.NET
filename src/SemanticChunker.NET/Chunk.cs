@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.AI;
 
-namespace SemanticChunker.NET;
+namespace SemanticChunkerNET;
 
 public class Chunk
 {

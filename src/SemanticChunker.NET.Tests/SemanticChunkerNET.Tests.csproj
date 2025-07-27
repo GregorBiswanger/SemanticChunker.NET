@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SemanticChunker.NET\SemanticChunker.NET.csproj" />
+    <ProjectReference Include="..\SemanticChunker.NET\SemanticChunkerNET.csproj" />
   </ItemGroup>
 
   <ItemGroup>

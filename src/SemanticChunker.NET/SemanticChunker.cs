@@ -2,7 +2,7 @@
 using Microsoft.Extensions.AI;
 using System.Collections.Immutable;
 
-namespace SemanticChunker.NET;
+namespace SemanticChunkerNET;
 
 /// <summary>
 /// Splits long text into semantically coherent chunks based on sentence embeddings

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticChunker.NET.Tests", "src\SemanticChunker.NET.Tests\SemanticChunker.NET.Tests.csproj", "{F15C4E11-C06D-4EA9-B550-FC9650EC31FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticChunkerNET.Tests", "src\SemanticChunker.NET.Tests\SemanticChunkerNET.Tests.csproj", "{F15C4E11-C06D-4EA9-B550-FC9650EC31FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticChunker.NET", "src\SemanticChunker.NET\SemanticChunker.NET.csproj", "{E3190219-AE70-4367-807E-AF5522CC62F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticChunkerNET", "src\SemanticChunker.NET\SemanticChunkerNET.csproj", "{E3190219-AE70-4367-807E-AF5522CC62F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

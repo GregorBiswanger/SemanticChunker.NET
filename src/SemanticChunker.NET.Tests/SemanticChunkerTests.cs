@@ -4,7 +4,7 @@ using Microsoft.SemanticKernel;
 using OllamaApiFacade.Extensions;
 using Shouldly;
 
-namespace SemanticChunker.NET.Tests;
+namespace SemanticChunkerNET.Tests;
 
 public class SemanticChunkerTests
 {
