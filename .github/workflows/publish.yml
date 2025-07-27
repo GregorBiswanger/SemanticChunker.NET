@@ -26,7 +26,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Pack NuGet package
-        run: dotnet pack src/SemanticChunker.NET/SemanticChunker.NET.csproj --configuration Release --no-build --output ./nupkg
+        run: dotnet pack src/SemanticChunker.NET/SemanticChunkerNET.csproj --configuration Release --no-build --output ./nupkg
 
       - name: Publish to NuGet
         run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
