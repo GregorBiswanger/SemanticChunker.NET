@@ -33,22 +33,25 @@ dotnet add package SemanticChunker.NET
 ```csharp
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
-using SemanticChunker.NET;
+using SemanticChunkerNET;
 
 // 1. Wire an embedding generator (example uses LM Studio)
 var builder = Kernel.CreateBuilder();
+
+#pragma warning disable SKEXP0010
 builder.Services.AddLmStudioEmbeddingGenerator("text-embedding-multilingual-e5-base");
-using var kernel = builder.Build();
+#pragma warning restore SKEXP0010
+
+var kernel = builder.Build();
 
 // 2. Create Chunker with your model’s token limit (e.g. 512)
-var embeddingGenerator =
-    kernel.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+var embeddingGenerator = kernel.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
 
-var chunker = new SemanticChunker(embeddingGenerator, tokenLimit: 512);
+var semanticChunker = new SemanticChunker(embeddingGenerator, tokenLimit: 512);
 
 // 3. Chunk text
 string input = File.ReadAllText("whitepaper.md");
-IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+IList<Chunk> chunks = await semanticChunker.CreateChunksAsync(input);
 
 // 4. Persist embeddings to your vector store
 await myVectorStore.UpsertAsync(chunks);
