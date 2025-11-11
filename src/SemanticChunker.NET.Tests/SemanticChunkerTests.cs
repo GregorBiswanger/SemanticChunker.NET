@@ -183,7 +183,7 @@ public class SemanticChunkerTests
         {
             for (var j = i + 1; j < inputs.Length; j++)
             {
-                similarities.Add(CosineSimilarity(embeddings[i].Vector.ToArray(),
+                similarities.Add(SemanticChunker.CosineSimilarity(embeddings[i].Vector.ToArray(),
                                                   embeddings[j].Vector.ToArray()));
             }
         }
@@ -220,6 +220,55 @@ public class SemanticChunkerTests
         }
     }
 
+    [Fact]
+    public void Cosine_IdenticalVectors_IsOne()
+    {
+        var v = new float[] { 1, 2, 3, 4 };
+        SemanticChunker.CosineSimilarity(v, v).ShouldBe(1.0, 1e-12);
+    }
+
+    [Fact]
+    public void Cosine_OppositeVectors_IsMinusOne()
+    {
+        var a = new float[] { 1, 0, -2 };
+        var b = new float[] { -1, 0, 2 };
+        SemanticChunker.CosineSimilarity(a, b).ShouldBe(-1.0, 1e-12);
+    }
+
+    [Fact]
+    public void Cosine_Orthogonal_IsZero()
+    {
+        var a = new float[] { 1, 0 };
+        var b = new float[] { 0, 5 };
+        SemanticChunker.CosineSimilarity(a, b).ShouldBe(0.0, 1e-12);
+    }
+
+    [Fact]
+    public void Cosine_ZeroVector_ReturnsZero()
+    {
+        var a = new float[] { 0, 0, 0 };
+        var b = new float[] { 1, 2, 3 };
+        SemanticChunker.CosineSimilarity(a, b).ShouldBe(0.0, 1e-12);
+    }
+
+    [Fact]
+    public void Cosine_DifferentLengths_Throws()
+    {
+        var a = new float[] { 1, 2, 3 };
+        var b = new float[] { 1, 2 };
+        Should.Throw<ArgumentException>(() => SemanticChunker.CosineSimilarity(a, b));
+    }
+
+    [Fact]
+    public void Cosine_IsBoundedInMinusOneToOne()
+    {
+        var rnd = new Random(42);
+        var a = Enumerable.Range(0, 1000).Select(_ => (float)rnd.NextDouble()).ToArray();
+        var b = Enumerable.Range(0, 1000).Select(_ => (float)rnd.NextDouble()).ToArray();
+        var cos = SemanticChunker.CosineSimilarity(a, b);
+        cos.ShouldBeInRange(-1.0, 1.0);
+    }
+
     private static double AnalyzeSemanticCoherence(IList<Chunk> chunks)
     {
         var maxCoherence = 0.0;
@@ -244,24 +293,5 @@ public class SemanticChunkerTests
         }
 
         return maxCoherence;
-    }
-
-    private static double CosineSimilarity(float[] vectorA, float[] vectorB)
-    {
-        if (vectorA.Length != vectorB.Length)
-            throw new ArgumentException("Vektoren müssen gleiche Länge haben");
-
-        double dotProduct = 0.0;
-        double normA = 0.0;
-        double normB = 0.0;
-
-        for (var i = 0; i < vectorA.Length; i++)
-        {
-            dotProduct += vectorA[i] * vectorB[i];
-            normA += vectorA[i] * vectorA[i];
-            normB += vectorB[i] * vectorB[i];
-        }
-
-        return dotProduct / (Math.Sqrt(normA) * Math.Sqrt(normB));
     }
 }

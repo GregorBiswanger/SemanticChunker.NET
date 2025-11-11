@@ -100,6 +100,50 @@ public sealed class SemanticChunker(
         return await AssembleChunksAsync(sentences, breakpoints, minChunkChars, cancellationToken);
     }
 
+    /// <summary>
+    /// Calculates the cosine similarity between two vectors of equal length.
+    /// </summary>
+    /// <param name="vectorA">The first vector.</param>
+    /// <param name="vectorB">The second vector.</param>
+    /// <returns>
+    /// A value between -1 and1 representing the cosine similarity:
+    ///1 indicates identical direction,0 indicates orthogonality, and -1 indicates opposite direction.
+    /// Returns0 if either vector has zero magnitude.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="vectorA"/> or <paramref name="vectorB"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the vectors do not have the same length.
+    /// </exception>
+    public static double CosineSimilarity(IReadOnlyList<float> vectorA, IReadOnlyList<float> vectorB)
+    {
+        if (vectorA is null) throw new ArgumentNullException(nameof(vectorA));
+        if (vectorB is null) throw new ArgumentNullException(nameof(vectorB));
+        if (vectorA.Count != vectorB.Count) throw new ArgumentException("Vectors must have the same length.");
+
+        double dot = 0, na = 0, nb = 0;
+
+        for (int i = 0; i < vectorA.Count; i++)
+        {
+            var ai = vectorA[i];
+            var bi = vectorB[i];
+            dot += ai * bi;
+            na += ai * ai;
+            nb += bi * bi;
+        }
+
+        var denom = Math.Sqrt(na) * Math.Sqrt(nb);
+        if (denom == 0) return 0;
+
+        var cos = dot / denom;
+
+        if (cos > 1) return 1;
+        if (cos < -1) return -1;
+
+        return cos;
+    }
+
     private static IList<string> SplitIntoSentences(string text)
     {
         var result = new List<string>();
@@ -235,8 +279,6 @@ public sealed class SemanticChunker(
         return Percentile(distances, percentile);
     }
 
-    // ---------- Statistics helpers ----------
-
     private static double Percentile(IReadOnlyList<double> sequence, double p)
     {
         double[] sorted = sequence.OrderBy(v => v).ToArray();
@@ -269,21 +311,5 @@ public sealed class SemanticChunker(
         g[^1] = sequence[^1] - sequence[^2];
 
         return g;
-    }
-
-    private static double CosineSimilarity(IReadOnlyList<float> a, IReadOnlyList<float> b)
-    {
-        double dot = 0;
-        double magnitudeA = 0;
-        double magnitudeB = 0;
-
-        for (int i = 0; i < a.Count; i++)
-        {
-            dot += a[i] * b[i];
-            magnitudeA += a[i] * a[i];
-            magnitudeB += b[i] * b[i];
-        }
-
-        return dot / (Math.Sqrt(magnitudeA) * Math.Sqrt(magnitudeB));
     }
 }
