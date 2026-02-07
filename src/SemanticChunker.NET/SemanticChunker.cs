@@ -264,10 +264,18 @@ public sealed class SemanticChunker(
 
     private static double ThresholdFromTargetCount(IReadOnlyList<double> distances, int desiredChunks)
     {
-        int maxChunks = distances.Count;
+        int maxChunks = distances.Count + 1;
         int minChunks = 1;
 
         int clampedChunks = Math.Clamp(desiredChunks, minChunks, maxChunks);
+
+        // Special case: if we want max chunks, return a value below the minimum distance
+        // so that all distances are above the threshold
+        if (clampedChunks == maxChunks)
+        {
+            double minDistance = distances.Min();
+            return minDistance - 1.0; // Return value below minimum to ensure all distances > threshold
+        }
 
         double y1 = 0;   // percentile for maxChunks
         double y2 = 100; // percentile for minChunks
