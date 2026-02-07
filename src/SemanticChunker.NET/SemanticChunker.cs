@@ -170,10 +170,11 @@ public sealed class SemanticChunker(
 
         for (int i = 0; i < sentences.Count; i++)
         {
-            IEnumerable<string> contextBefore = sentences.Skip(Math.Max(0, i - buffer)).Take(buffer);
-            IEnumerable<string> contextAfter = sentences.Skip(i + 1).Take(buffer);
+            var startInclusive = Math.Max(0, i - buffer);
+            var endExclusive = Math.Min(i + buffer + 1, sentences.Count);
+            var context = sentences.Skip(startInclusive).Take(endExclusive - startInclusive);
 
-            result.Add(string.Join(' ', contextBefore.Concat([sentences[i]]).Concat(contextAfter)));
+            result.Add(string.Join(' ', context));
         }
 
         return result;
