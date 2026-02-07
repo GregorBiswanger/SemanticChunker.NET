@@ -8,36 +8,33 @@ namespace SemanticChunkerNET.Tests;
 /// </summary>
 public class RandomEmbeddingGenerator : IEmbeddingGenerator<string, Embedding<float>>
 {
-    private readonly Random _random;
     private readonly int _embeddingDimension;
 
-    public RandomEmbeddingGenerator(int seed = 42, int embeddingDimension = 384)
+    public RandomEmbeddingGenerator(int embeddingDimension = 384)
     {
-        _random = new Random(seed);
         _embeddingDimension = embeddingDimension;
     }
 
     public EmbeddingGeneratorMetadata Metadata => new("random-embedding-generator");
 
-    public async Task<GeneratedEmbeddings<Embedding<float>>> GenerateAsync(
+    public Task<GeneratedEmbeddings<Embedding<float>>> GenerateAsync(
         IEnumerable<string> values, 
         EmbeddingGenerationOptions? options = null, 
         CancellationToken cancellationToken = default)
     {
-        var embeddings = new List<Embedding<float>>();
-        
-        foreach (var value in values)
-        {
-            embeddings.Add(await GenerateAsync(value, options, cancellationToken));
-        }
-
-        return new GeneratedEmbeddings<Embedding<float>>(embeddings);
+        var embeddings = values.Select(value => GenerateEmbedding(value)).ToList();
+        return Task.FromResult(new GeneratedEmbeddings<Embedding<float>>(embeddings));
     }
 
     public Task<Embedding<float>> GenerateAsync(
         string value, 
         EmbeddingGenerationOptions? options = null, 
         CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GenerateEmbedding(value));
+    }
+
+    private Embedding<float> GenerateEmbedding(string value)
     {
         // Generate deterministic random embeddings based on the string hash
         var hash = value.GetHashCode();
@@ -49,8 +46,7 @@ public class RandomEmbeddingGenerator : IEmbeddingGenerator<string, Embedding<fl
             vector[i] = (float)localRandom.NextDouble();
         }
 
-        var embedding = new Embedding<float>(vector);
-        return Task.FromResult(embedding);
+        return new Embedding<float>(vector);
     }
 
     public object? GetService(Type serviceType, object? serviceKey = null)
