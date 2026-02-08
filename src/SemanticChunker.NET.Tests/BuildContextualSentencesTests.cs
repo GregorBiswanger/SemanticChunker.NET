@@ -113,4 +113,24 @@ public class BuildContextualSentencesTests
         contextual[1].ShouldBe("1 2 3");
         contextual[2].ShouldBe("1 2 3");
     }
+
+    [Fact]
+    public void BuildContextualSentences_WithNegativeBuffer_ShouldClampToZeroAndIncludeCurrentSentence()
+    {
+        // Arrange
+        List<string> sentences = ["A", "B", "C"];
+        int buffer = -5;
+
+        // Act
+        var contextual = InvokeBuildContextualSentences(sentences, buffer);
+
+        // Assert
+        contextual.Count.ShouldBe(3);
+        
+        // Negative buffer should be clamped to 0, so each sentence should only contain itself
+        // This ensures the current sentence is always included (no regression from previous implementation)
+        contextual[0].ShouldBe("A");
+        contextual[1].ShouldBe("B");
+        contextual[2].ShouldBe("C");
+    }
 }

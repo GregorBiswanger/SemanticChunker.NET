@@ -167,6 +167,9 @@ public sealed class SemanticChunker(
     private static IList<string> BuildContextualSentences(IList<string> sentences, int buffer)
     {
         var result = new List<string>(sentences.Count);
+        
+        // Clamp buffer to 0 to ensure current sentence is always included
+        buffer = Math.Max(0, buffer);
 
         for (int i = 0; i < sentences.Count; i++)
         {
