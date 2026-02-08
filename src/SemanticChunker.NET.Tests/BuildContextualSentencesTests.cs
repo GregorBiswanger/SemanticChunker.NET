@@ -115,7 +115,7 @@ public class BuildContextualSentencesTests
     }
 
     [Fact]
-    public void BuildContextualSentences_WithNegativeBuffer_ShouldClampToZeroAndIncludeCurrentSentence()
+    public void BuildContextualSentences_WithNegativeBuffer_ShouldIncludeOnlyCurrentSentence()
     {
         // Arrange
         List<string> sentences = ["A", "B", "C"];
