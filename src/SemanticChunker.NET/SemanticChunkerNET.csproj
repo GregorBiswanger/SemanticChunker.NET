@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ICU4N" Version="60.1.0-alpha.438" />
+    <PackageReference Include="ICU4N" Version="60.1.0-alpha.439" />
     <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.2.0" />
   </ItemGroup>
 

@@ -16,7 +16,7 @@ public class TwoSentencesGradientTests
         var chunker = new SemanticChunker(generator, TokenLimit, thresholdType: BreakpointThresholdType.Gradient);
 
         // Act
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         // Assert
         chunks.ShouldNotBeNull();
@@ -43,13 +43,13 @@ public class TwoSentencesGradientTests
         var input = "First sentence here. Second sentence here.";
         var generator = new RandomEmbeddingGenerator();
         var chunker = new SemanticChunker(
-            generator, 
-            TokenLimit, 
+            generator,
+            TokenLimit,
             thresholdType: BreakpointThresholdType.Gradient,
             thresholdAmount: 50);
 
         // Act
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         // Assert
         chunks.ShouldNotBeNull();
@@ -72,13 +72,13 @@ public class TwoSentencesGradientTests
         var input = "Machine learning is powerful. Deep learning is advanced.";
         var generator = new RandomEmbeddingGenerator();
         var chunker = new SemanticChunker(
-            generator, 
+            generator,
             TokenLimit,
             bufferSize: 1,
             thresholdType: BreakpointThresholdType.Gradient);
 
         // Act
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         // Assert
         chunks.ShouldNotBeNull();

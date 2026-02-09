@@ -35,7 +35,7 @@ public class SemanticChunkerTests
         var generator = _kernel.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
         var chunker = new SemanticChunker(generator, TokenLimit);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBe(1);
         chunks[0].Id.ShouldNotBeNullOrEmpty();
@@ -60,7 +60,7 @@ public class SemanticChunkerTests
         var generator = _kernel.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
         var chunker = new SemanticChunker(generator, TokenLimit);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBe(2);
 
@@ -97,7 +97,7 @@ public class SemanticChunkerTests
         var generator = _kernel.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
         var chunker = new SemanticChunker(generator, TokenLimit);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBeGreaterThan(1);
         chunks.Count.ShouldBeLessThanOrEqualTo(9);
@@ -143,7 +143,7 @@ public class SemanticChunkerTests
             thresholdType: BreakpointThresholdType.Percentile,
             thresholdAmount: 72);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBe(3);
         chunks[0].Text.ShouldBe(string.Join(' ', lines.Take(3)));
@@ -175,7 +175,7 @@ public class SemanticChunkerTests
 
         foreach (var sentence in inputs)
         {
-            embeddings.Add(await generator.GenerateAsync(sentence));
+            embeddings.Add(await generator.GenerateAsync(sentence, cancellationToken: TestContext.Current.CancellationToken));
         }
 
         var similarities = new List<double>();
@@ -203,7 +203,7 @@ public class SemanticChunkerTests
         var generator = _kernel.Services.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
         var chunker = new SemanticChunker(generator, TokenLimit);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBeInRange(1, 2);
 

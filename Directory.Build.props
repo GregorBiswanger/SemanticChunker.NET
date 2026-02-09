@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Suppress false-positive warning ICU4N_IDE_0002 caused by .NET SDK 10.x
+         where NuGet.Build.Tasks.Pack.dll has moved to a different path.
+         Our SDK (10.0.102) is well above the required minimum (9.0.200). -->
+    <ICU4NSuppressNuGetBuildTasksPackVersionWarnings>true</ICU4NSuppressNuGetBuildTasksPackVersionWarnings>
+  </PropertyGroup>
+</Project>

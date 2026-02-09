@@ -14,7 +14,7 @@ public class TargetChunkCountTests
         var generator = new RandomEmbeddingGenerator();
         var chunker = new SemanticChunker(generator, TokenLimit, targetChunkCount: 3);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBe(3);
     }
@@ -27,7 +27,7 @@ public class TargetChunkCountTests
         var generator = new RandomEmbeddingGenerator();
         var chunker = new SemanticChunker(generator, TokenLimit, targetChunkCount: 2);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBe(2);
     }
@@ -40,7 +40,7 @@ public class TargetChunkCountTests
         var generator = new RandomEmbeddingGenerator();
         var chunker = new SemanticChunker(generator, TokenLimit, targetChunkCount: 4);
 
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         chunks.Count.ShouldBe(4);
     }

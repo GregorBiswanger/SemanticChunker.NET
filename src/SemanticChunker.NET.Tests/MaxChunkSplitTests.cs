@@ -70,7 +70,7 @@ public class MaxChunkSplitTests
             maxOverrunChars: 200);
 
         // Act
-        IList<Chunk> chunks = await chunker.CreateChunksAsync(input);
+        IList<Chunk> chunks = await chunker.CreateChunksAsync(input, TestContext.Current.CancellationToken);
 
         // Assert: chunks should exist and be within reasonable size
         chunks.Count.ShouldBeGreaterThan(1);
