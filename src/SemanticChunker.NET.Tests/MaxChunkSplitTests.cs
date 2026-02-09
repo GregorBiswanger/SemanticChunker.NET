@@ -101,10 +101,10 @@ public class MaxChunkSplitTests
         // all chunk texts should reconstruct the original content (characters may
         // span chunk boundaries).
         string allChars = string.Concat(chunks.Select(c => c.Text));
-        // The original input words (joined with spaces) should be fully present
-        // when we concatenate all chunks without any separator
-        allChars.ShouldContain("Alpha");
-        allChars.ShouldContain("papa");
+        foreach (string word in input.Split(' ', '.').Where(w => w.Length > 0))
+        {
+            allChars.ShouldContain(word);
+        }
     }
 }
 
