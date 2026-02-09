@@ -35,6 +35,11 @@ namespace SemanticChunkerNET;
 /// <param name="minChunkChars">
 ///    Chunks shorter than this value are skipped entirely.
 /// </param>
+/// <param name="maxOverrunChars">
+///    When a chunk exceeds the maximum character limit, the splitter searches
+///    forward up to this many characters for the next newline boundary before
+///    falling back to a hard cut.  Set to 0 to disable boundary‑aware splitting.
+/// </param>
 public sealed class SemanticChunker(
     IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator,
     int tokenLimit,
@@ -42,7 +47,8 @@ public sealed class SemanticChunker(
     BreakpointThresholdType thresholdType = BreakpointThresholdType.Percentile,
     double? thresholdAmount = null,
     int? targetChunkCount = null,
-    int minChunkChars = 0)
+    int minChunkChars = 0,
+    int maxOverrunChars = 200)
 {
     private static readonly IReadOnlyDictionary<BreakpointThresholdType, double> DefaultThresholdAmounts =
         new Dictionary<BreakpointThresholdType, double>
@@ -222,24 +228,49 @@ public sealed class SemanticChunker(
                 continue;
             }
 
-            if (chunkText.Length > _maximumChunkCharacters)
+            foreach (string part in SplitChunkText(chunkText, _maximumChunkCharacters, maxOverrunChars))
             {
-                chunkText = chunkText[.._maximumChunkCharacters];
+                Embedding<float> embedding = await embeddingGenerator.GenerateAsync(part, cancellationToken: cancellationToken);
+
+                chunks.Add(new Chunk
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Text = part,
+                    Embedding = embedding
+                });
             }
-
-            Embedding<float> embedding = await embeddingGenerator.GenerateAsync(chunkText, cancellationToken: cancellationToken);
-
-            chunks.Add(new Chunk
-            {
-                Id = Guid.NewGuid().ToString(),
-                Text = chunkText,
-                Embedding = embedding
-            });
 
             currentSentences.Clear();
         }
 
         return chunks;
+    }
+
+    private static IEnumerable<string> SplitChunkText(string text, int maxChars, int overrun)
+    {
+        while (text.Length > maxChars)
+        {
+            int cutIndex = maxChars;
+
+            if (overrun > 0)
+            {
+                int searchEnd = Math.Min(text.Length, maxChars + overrun);
+                int newlineIndex = text.IndexOf('\n', maxChars, searchEnd - maxChars);
+
+                if (newlineIndex >= 0)
+                {
+                    cutIndex = newlineIndex;
+                }
+            }
+
+            yield return text[..cutIndex];
+            text = text[cutIndex..].TrimStart('\n');
+        }
+
+        if (text.Length > 0)
+        {
+            yield return text;
+        }
     }
 
     private static double CalculateThreshold(
