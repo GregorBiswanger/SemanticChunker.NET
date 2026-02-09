@@ -35,6 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="SemanticChunkerNET.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ICU4N" Version="60.1.0-alpha.438" />
     <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.2.0" />
   </ItemGroup>

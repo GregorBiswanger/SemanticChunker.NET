@@ -1,24 +1,9 @@
-using System.Reflection;
 using Shouldly;
 
 namespace SemanticChunkerNET.Tests;
 
 public class MaxChunkSplitTests
 {
-    private static IEnumerable<string> InvokeSplitChunkText(string text, int maxChars, int overrun)
-    {
-        var method = typeof(SemanticChunker).GetMethod(
-            "SplitChunkText",
-            BindingFlags.NonPublic | BindingFlags.Static);
-
-        if (method == null)
-        {
-            throw new InvalidOperationException("SplitChunkText method not found");
-        }
-
-        var result = method.Invoke(null, [text, maxChars, overrun]);
-        return result as IEnumerable<string> ?? throw new InvalidOperationException("Unexpected result type");
-    }
 
     [Fact]
     public void SplitChunkText_CutsAtNewlineInsteadOfHardCut()
@@ -33,7 +18,7 @@ public class MaxChunkSplitTests
         string input = firstLine + "\n" + secondLine;
 
         // Act
-        var parts = InvokeSplitChunkText(input, maxChars, overrun).ToList();
+        var parts = TextSegmenter.SplitChunkText(input, maxChars, overrun).ToList();
 
         // Assert: first part ends at the newline boundary (40 chars), not at maxChars (36)
         parts.Count.ShouldBe(2);
@@ -54,7 +39,7 @@ public class MaxChunkSplitTests
         string longText = new string('B', 200);
 
         // Act
-        var parts = InvokeSplitChunkText(longText, maxChars, overrun).ToList();
+        var parts = TextSegmenter.SplitChunkText(longText, maxChars, overrun).ToList();
 
         // Assert: first part is hard-cut at exactly maxChars (36)
         parts.Count.ShouldBeGreaterThanOrEqualTo(2);

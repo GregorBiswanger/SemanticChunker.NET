@@ -1,25 +1,9 @@
-using System.Reflection;
 using Shouldly;
 
 namespace SemanticChunkerNET.Tests;
 
 public class GradientTests
 {
-    private static double[] InvokeGradient(IReadOnlyList<double> sequence)
-    {
-        var method = typeof(SemanticChunker).GetMethod(
-            "Gradient",
-            BindingFlags.NonPublic | BindingFlags.Static);
-
-        if (method == null)
-        {
-            throw new InvalidOperationException("Gradient method not found");
-        }
-
-        var result = method.Invoke(null, [sequence]);
-        return result as double[] ?? throw new InvalidOperationException("Unexpected result type");
-    }
-
     [Fact]
     public void Gradient_WithSingleElement_ReturnsZero()
     {
@@ -27,7 +11,7 @@ public class GradientTests
         var sequence = new List<double> { 0.5 };
 
         // Act
-        var gradient = InvokeGradient(sequence);
+        var gradient = Statistics.Gradient(sequence);
 
         // Assert
         gradient.Length.ShouldBe(1);
@@ -41,7 +25,7 @@ public class GradientTests
         var sequence = new List<double> { 1.0, 3.0 };
 
         // Act
-        var gradient = InvokeGradient(sequence);
+        var gradient = Statistics.Gradient(sequence);
 
         // Assert
         gradient.Length.ShouldBe(2);
@@ -56,7 +40,7 @@ public class GradientTests
         var sequence = new List<double> { 1.0, 2.0, 4.0 };
 
         // Act
-        var gradient = InvokeGradient(sequence);
+        var gradient = Statistics.Gradient(sequence);
 
         // Assert
         gradient.Length.ShouldBe(3);
@@ -72,7 +56,7 @@ public class GradientTests
         var sequence = new List<double> { 0.0, 1.0, 3.0, 6.0, 10.0 };
 
         // Act
-        var gradient = InvokeGradient(sequence);
+        var gradient = Statistics.Gradient(sequence);
 
         // Assert
         gradient.Length.ShouldBe(5);

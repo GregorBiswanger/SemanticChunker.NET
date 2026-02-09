@@ -1,5 +1,4 @@
-﻿using ICU4N.Text;
-using Microsoft.Extensions.AI;
+﻿using Microsoft.Extensions.AI;
 using System.Collections.Immutable;
 
 namespace SemanticChunkerNET;
@@ -71,7 +70,7 @@ public sealed class SemanticChunker(
     /// </returns>
     public async Task<IList<Chunk>> CreateChunksAsync(string text, CancellationToken cancellationToken = default)
     {
-        IList<string> sentences = SplitIntoSentences(text);
+        IList<string> sentences = TextSegmenter.SplitIntoSentences(text);
 
         if (sentences.Count <= 1)
         {
@@ -86,7 +85,7 @@ public sealed class SemanticChunker(
             ];
         }
 
-        IList<string> contextualSentences = BuildContextualSentences(sentences, bufferSize);
+        IList<string> contextualSentences = TextSegmenter.BuildContextualSentences(sentences, bufferSize);
 
         Embedding<float>[] contextualEmbeddings = await Task.WhenAll(
             contextualSentences.Select(s => embeddingGenerator.GenerateAsync(s, cancellationToken: cancellationToken)));
@@ -150,44 +149,7 @@ public sealed class SemanticChunker(
         return cos;
     }
 
-    private static IList<string> SplitIntoSentences(string text)
-    {
-        var result = new List<string>();
-        BreakIterator iterator = BreakIterator.GetSentenceInstance();
-        iterator.SetText(text);
 
-        for (int start = iterator.First(), end = iterator.Next();
-             end != BreakIterator.Done;
-             start = end, end = iterator.Next())
-        {
-            string sentence = text.Substring(start, end - start).Trim();
-            if (sentence.Length > 0)
-            {
-                result.Add(sentence);
-            }
-        }
-
-        return result;
-    }
-
-    private static IList<string> BuildContextualSentences(IList<string> sentences, int buffer)
-    {
-        var result = new List<string>(sentences.Count);
-        
-        // Clamp buffer to 0 to ensure current sentence is always included
-        buffer = Math.Max(0, buffer);
-
-        for (int i = 0; i < sentences.Count; i++)
-        {
-            var startInclusive = Math.Max(0, i - buffer);
-            var endExclusive = Math.Min(i + buffer + 1, sentences.Count);
-            var context = sentences.Skip(startInclusive).Take(endExclusive - startInclusive);
-
-            result.Add(string.Join(' ', context));
-        }
-
-        return result;
-    }
 
     private static double[] CalculateSentenceDistances(IReadOnlyList<Embedding<float>> embeddings)
     {
@@ -228,7 +190,7 @@ public sealed class SemanticChunker(
                 continue;
             }
 
-            foreach (string part in SplitChunkText(chunkText, _maximumChunkCharacters, maxOverrunChars))
+            foreach (string part in TextSegmenter.SplitChunkText(chunkText, _maximumChunkCharacters, maxOverrunChars))
             {
                 Embedding<float> embedding = await embeddingGenerator.GenerateAsync(part, cancellationToken: cancellationToken);
 
@@ -246,32 +208,7 @@ public sealed class SemanticChunker(
         return chunks;
     }
 
-    private static IEnumerable<string> SplitChunkText(string text, int maxChars, int overrun)
-    {
-        while (text.Length > maxChars)
-        {
-            int cutIndex = maxChars;
 
-            if (overrun > 0)
-            {
-                int searchEnd = Math.Min(text.Length, maxChars + overrun);
-                int newlineIndex = text.IndexOf('\n', maxChars, searchEnd - maxChars);
-
-                if (newlineIndex >= 0)
-                {
-                    cutIndex = newlineIndex;
-                }
-            }
-
-            yield return text[..cutIndex];
-            text = text[cutIndex..].TrimStart('\n');
-        }
-
-        if (text.Length > 0)
-        {
-            yield return text;
-        }
-    }
 
     private static double CalculateThreshold(
         IReadOnlyList<double> distances,
@@ -281,17 +218,17 @@ public sealed class SemanticChunker(
         return type switch
         {
             BreakpointThresholdType.Percentile =>
-                Percentile(distances, amount),
+                Statistics.Percentile(distances, amount),
 
             BreakpointThresholdType.StandardDeviation =>
-                distances.Average() + amount * StandardDeviation(distances),
+                distances.Average() + amount * Statistics.StandardDeviation(distances),
 
             BreakpointThresholdType.InterQuartile =>
                 distances.Average() + amount *
-                (Percentile(distances, 75) - Percentile(distances, 25)),
+                (Statistics.Percentile(distances, 75) - Statistics.Percentile(distances, 25)),
 
             BreakpointThresholdType.Gradient =>
-                Percentile(Gradient(distances), amount),
+                Statistics.Percentile(Statistics.Gradient(distances), amount),
 
             _ => throw new ArgumentOutOfRangeException(nameof(type))
         };
@@ -318,45 +255,8 @@ public sealed class SemanticChunker(
             ? y2
             : y1 + (y2 - y1) * (clampedChunks - maxChunks) / (minChunks - maxChunks);
 
-        return Percentile(distances, percentile);
+        return Statistics.Percentile(distances, percentile);
     }
 
-    private static double Percentile(IReadOnlyList<double> sequence, double p)
-    {
-        double[] sorted = sequence.OrderBy(v => v).ToArray();
-        double n = (sorted.Length - 1) * p / 100d;
-        int k = (int)Math.Floor(n);
-        double d = n - k;
 
-        return k + 1 < sorted.Length
-            ? sorted[k] + d * (sorted[k + 1] - sorted[k])
-            : sorted[^1];
-    }
-
-    private static double StandardDeviation(IReadOnlyList<double> sequence)
-    {
-        double average = sequence.Average();
-        double variance = sequence.Sum(v => Math.Pow(v - average, 2)) / sequence.Count;
-        return Math.Sqrt(variance);
-    }
-
-    private static double[] Gradient(IReadOnlyList<double> sequence)
-    {
-        if (sequence.Count == 1)
-        {
-            return [0.0];
-        }
-
-        var g = new double[sequence.Count];
-
-        for (int i = 1; i < sequence.Count - 1; i++)
-        {
-            g[i] = (sequence[i + 1] - sequence[i - 1]) / 2d;
-        }
-
-        g[0] = sequence[1] - sequence[0];
-        g[^1] = sequence[^1] - sequence[^2];
-
-        return g;
-    }
 }

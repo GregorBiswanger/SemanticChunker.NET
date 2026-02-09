@@ -1,24 +1,9 @@
-using System.Reflection;
 using Shouldly;
 
 namespace SemanticChunkerNET.Tests;
 
 public class BuildContextualSentencesTests
 {
-    private static IList<string> InvokeBuildContextualSentences(IList<string> sentences, int buffer)
-    {
-        var method = typeof(SemanticChunker).GetMethod(
-            "BuildContextualSentences",
-            BindingFlags.NonPublic | BindingFlags.Static);
-
-        if (method == null)
-        {
-            throw new InvalidOperationException("BuildContextualSentences method not found");
-        }
-
-        var result = method.Invoke(null, [sentences, buffer]);
-        return result as IList<string> ?? throw new InvalidOperationException("Unexpected result type");
-    }
 
     [Fact]
     public void BuildContextualSentences_WithBuffer3_ShouldNotContainDuplicateSentences()
@@ -28,20 +13,11 @@ public class BuildContextualSentencesTests
         int buffer = 3;
 
         // Act
-        var contextual = InvokeBuildContextualSentences(sentences, buffer);
+        var contextual = TextSegmenter.BuildContextualSentences(sentences, buffer);
 
         // Assert
         contextual.Count.ShouldBe(7);
-        
-        // Expected results based on the fix:
-        // i=0: context should be "0 1 2 3" (0 sentences before + sentence 0 + 3 sentences after)
-        // i=1: context should be "0 1 2 3 4" (1 sentence before + sentence 1 + 3 sentences after)
-        // i=2: context should be "0 1 2 3 4 5" (2 sentences before + sentence 2 + 3 sentences after)
-        // i=3: context should be "0 1 2 3 4 5 6" (3 sentences before + sentence 3 + 3 sentences after)
-        // i=4: context should be "1 2 3 4 5 6" (3 sentences before + sentence 4 + 2 sentences after)
-        // i=5: context should be "2 3 4 5 6" (3 sentences before + sentence 5 + 1 sentence after)
-        // i=6: context should be "3 4 5 6" (3 sentences before + sentence 6 + 0 sentences after)
-        
+
         contextual[0].ShouldBe("0 1 2 3");
         contextual[1].ShouldBe("0 1 2 3 4");
         contextual[2].ShouldBe("0 1 2 3 4 5");
@@ -59,17 +35,11 @@ public class BuildContextualSentencesTests
         int buffer = 1;
 
         // Act
-        var contextual = InvokeBuildContextualSentences(sentences, buffer);
+        var contextual = TextSegmenter.BuildContextualSentences(sentences, buffer);
 
         // Assert
         contextual.Count.ShouldBe(4);
-        
-        // Expected results:
-        // i=0: "A B" (0 before + A + 1 after)
-        // i=1: "A B C" (1 before + B + 1 after)
-        // i=2: "B C D" (1 before + C + 1 after)
-        // i=3: "C D" (1 before + D + 0 after)
-        
+
         contextual[0].ShouldBe("A B");
         contextual[1].ShouldBe("A B C");
         contextual[2].ShouldBe("B C D");
@@ -84,11 +54,11 @@ public class BuildContextualSentencesTests
         int buffer = 0;
 
         // Act
-        var contextual = InvokeBuildContextualSentences(sentences, buffer);
+        var contextual = TextSegmenter.BuildContextualSentences(sentences, buffer);
 
         // Assert
         contextual.Count.ShouldBe(3);
-        
+
         // Each sentence should only contain itself
         contextual[0].ShouldBe("X");
         contextual[1].ShouldBe("Y");
@@ -103,11 +73,11 @@ public class BuildContextualSentencesTests
         int buffer = 10;
 
         // Act
-        var contextual = InvokeBuildContextualSentences(sentences, buffer);
+        var contextual = TextSegmenter.BuildContextualSentences(sentences, buffer);
 
         // Assert
         contextual.Count.ShouldBe(3);
-        
+
         // All contexts should contain all sentences since buffer is larger than list
         contextual[0].ShouldBe("1 2 3");
         contextual[1].ShouldBe("1 2 3");
@@ -122,11 +92,11 @@ public class BuildContextualSentencesTests
         int buffer = -5;
 
         // Act
-        var contextual = InvokeBuildContextualSentences(sentences, buffer);
+        var contextual = TextSegmenter.BuildContextualSentences(sentences, buffer);
 
         // Assert
         contextual.Count.ShouldBe(3);
-        
+
         // Negative buffer should be clamped to 0, so each sentence should only contain itself
         // This ensures the current sentence is always included (no regression from previous implementation)
         contextual[0].ShouldBe("A");
