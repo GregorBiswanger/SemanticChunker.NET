@@ -1,4 +1,6 @@
 using Microsoft.Extensions.AI;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SemanticChunkerNET.Tests;
 
@@ -36,9 +38,11 @@ public class RandomEmbeddingGenerator : IEmbeddingGenerator<string, Embedding<fl
 
     private Embedding<float> GenerateEmbedding(string value)
     {
-        // Generate deterministic random embeddings based on the string hash
-        var hash = value.GetHashCode();
-        var localRandom = new Random(hash);
+        // Generate deterministic embeddings using stable SHA256 hash instead of GetHashCode()
+        // which is non-deterministic across processes/runs in modern .NET
+        byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+        int seed = BitConverter.ToInt32(hashBytes, 0);
+        var localRandom = new Random(seed);
         
         var vector = new float[_embeddingDimension];
         for (int i = 0; i < _embeddingDimension; i++)
