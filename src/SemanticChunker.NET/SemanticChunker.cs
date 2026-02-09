@@ -311,6 +311,11 @@ public sealed class SemanticChunker(
 
     private static double[] Gradient(IReadOnlyList<double> sequence)
     {
+        if (sequence.Count == 1)
+        {
+            return [0.0];
+        }
+
         var g = new double[sequence.Count];
 
         for (int i = 1; i < sequence.Count - 1; i++)
