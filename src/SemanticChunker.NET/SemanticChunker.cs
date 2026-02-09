@@ -269,12 +269,11 @@ public sealed class SemanticChunker(
 
         int clampedChunks = Math.Clamp(desiredChunks, minChunks, maxChunks);
 
-        // Special case: if we want max chunks, return a value below the minimum distance
+        // Special case: if we want max chunks, return a sentinel value below any finite distance
         // so that all distances are above the threshold
         if (clampedChunks == maxChunks)
         {
-            double minDistance = distances.Min();
-            return minDistance - 1.0; // Return value below minimum to ensure all distances > threshold
+            return double.NegativeInfinity;
         }
 
         double y1 = 0;   // percentile for maxChunks
