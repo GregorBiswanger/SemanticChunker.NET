@@ -8,10 +8,10 @@
 
   <PropertyGroup>
     <PackageId>SemanticChunker.NET</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.5.0</Version>
     <Authors>Gregor Biswanger</Authors>
     <Description>
-      SemanticChunker.NET delivers automatic Semantic Chunking for Retrieval‑Augmented Generation in .NET. The library splits long documents into embedding‑aware, context‑preserving chunks that fit your LLM’s token budget. Compatible with Microsoft.Extensions.AI and Semantic Kernel, featuring four breakpoint strategies, target‑chunk mode, multilingual sentence detection and token‑limit safety.
+      SemanticChunker.NET delivers automatic Semantic Chunking for Retrieval-Augmented Generation in .NET. The library splits long documents into embedding-aware, context-preserving chunks that fit your LLM’s token budget. Compatible with Microsoft.Extensions.AI and Semantic Kernel, featuring four breakpoint strategies, target-chunk mode, multilingual sentence detection and token-limit safety.
     </Description>
     <PackageTags>
       Semantic Chunking, RAG, Retrieval Augmented Generation, Text Splitter, Embeddings, Semantic Kernel, Microsoft.Extensions.AI, LLM, AI, .NET, Natural Language Processing, Vector Store, Chunker
@@ -36,7 +36,7 @@
 
   <ItemGroup>
     <PackageReference Include="ICU4N" Version="60.1.0-alpha.438" />
-    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.2.0" />
   </ItemGroup>
 
   <ItemGroup>
